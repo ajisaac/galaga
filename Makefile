@@ -14,3 +14,4 @@ all: $(TARGET_EXEC)
 
 $(TARGET_EXEC): $(MY_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
+
