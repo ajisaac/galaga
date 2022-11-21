@@ -12,5 +12,5 @@ all: my
 %o: %.c
 	$(CC) $(CFLAGS) -c $<
 
-my: $(MY_OBJS)
+$(TARGET_EXEC): $(MY_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
