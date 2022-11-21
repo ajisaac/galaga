@@ -1,3 +1,5 @@
+*.o
+game
 .cmake
 cmake-build-debug
 CMakeFiles
