@@ -1,17 +1,34 @@
-TARGET_EXEC := game
+TARGET_EXEC := galaga
 
-CC=gcc
-# CFLAGS=-lSDL2 -O3
-CFLAGS=-lSDL2 -g
+BUILD_DIR := ./build
+SRC_DIRS := ./src
 
-MY_SOURCES = src/main.c
-MY_OBJS = $(patsubst %.c,%.o, $(MY_SOURCES))
+SRCS := $(shell find $(SRC_DIRS) -name *.c)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+DEPS := $(OBJS:.o=.d)
 
-all: $(TARGET_EXEC)
+INC_DIRS := $(shell find $(SRC_DIRS) -type d) /usr/include/SDL2
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+LDFLAGS := -lSDL2
 
-%o: %.c
-	$(CC) $(CFLAGS) -c $<
+CC := gcc
+CFLAGS := -g
+CPPFLAGS := $(INC_FLAGS)
 
-$(TARGET_EXEC): $(MY_OBJS)
-	$(CC) $(CFLAGS) $^ -o $@
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	@echo $@ 
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+.PHONY: clean
+
+clean:
+	$(RM) -r $(BUILD_DIR)
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
