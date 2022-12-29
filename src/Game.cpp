@@ -99,3 +99,10 @@ SDL_Surface* Game::load_surface(const std::string& path) {
         std::cout << "Unable to load image: " << path << " : " << SDL_GetError() << "\n";
     return surface;
 }
+
+SDL_Surface* Game::load_surface(const std::string& path) {
+    SDL_Surface* surface = SDL_LoadBMP(path.c_str());
+    if (surface == nullptr)
+        std::cout << "Unable to load image: " << path << " : " << SDL_GetError() << "\n";
+    return surface;
+}
