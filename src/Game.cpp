@@ -36,7 +36,12 @@ bool Game::run() {
                 }
             }
         }
-        SDL_BlitSurface(this->image_surface, nullptr, this->window_surface, nullptr);
+        SDL_Rect stretched_rect;
+        stretched_rect.x = 0;
+        stretched_rect.y = 0;
+        stretched_rect.w = SCREEN_WIDTH;
+        stretched_rect.h = SCREEN_HEIGHT;
+        SDL_BlitSurface(this->image_surface, nullptr, this->window_surface, &stretched_rect);
         SDL_UpdateWindowSurface(window);
     }
 
@@ -94,8 +99,22 @@ void Game::close() {
 }
 
 SDL_Surface* Game::load_surface(const std::string& path) {
+
+    SDL_Surface* optimized_surface = nullptr;
+
     SDL_Surface* surface = SDL_LoadBMP(path.c_str());
-    if (surface == nullptr)
+    if (surface == nullptr) {
         std::cout << "Unable to load image: " << path << " : " << SDL_GetError() << "\n";
-    return surface;
+        return nullptr;
+    }
+
+    optimized_surface = SDL_ConvertSurface(surface, window_surface->format, 0);
+    if (optimized_surface == nullptr) {
+        std::cout << "Unable to optimize image: " << path << " : " << SDL_GetError() << "\n";
+        SDL_FreeSurface(surface);
+        return nullptr;
+    }
+
+    SDL_FreeSurface(surface); // no longer need this
+    return optimized_surface;
 }
