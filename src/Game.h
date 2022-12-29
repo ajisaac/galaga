@@ -21,7 +21,6 @@ private:
         TOTAL
     };
 
-    // small change
     SDL_Window* window;
     SDL_Surface* window_surface;
     SDL_Surface* image_surface;
