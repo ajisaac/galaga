@@ -8,6 +8,7 @@ set(SDL2_INCLUDE_DIR "${SDL2_DIR}/include")
 set(SDL2_LIBRARY "${SDL2_DIR}/lib/x64")
 set(SDL2_LIBRARIES "${SDL2_DIR}/lib/x64/SDL2.lib;${SDL2_DIR}/lib/x64/SDL2main.lib")
 
+#include_directories(src)
 include_directories(${SDL2_INCLUDE_DIR})
 
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true src/*.cpp src/*.h)
