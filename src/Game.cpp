@@ -1,7 +1,3 @@
-//
-// Created by Aaron on 12/18/2022.
-//
-
 #include "Game.h"
 #include <iostream>
 
@@ -11,26 +7,43 @@ bool Game::run() {
         return false;
     }
 
-    if (!loadMedia()) {
-        close();
-        return false;
-    }
-
-
-//    SDL_FillRect(window_surface, nullptr, SDL_MapRGB(window_surface->format, 0xAF, 0xFF, 0xFF));
-
-    SDL_BlitSurface(this->image_surface, nullptr, this->window_surface, nullptr);
-    SDL_UpdateWindowSurface(window);
+    loadMedia();
+    image_surface = key_press_surfaces[DEFAULT];
 
     SDL_Event e;
-    while (true) {
-        while (SDL_PollEvent(&e)) {
+    bool quit{false};
+    while (!quit) {
+        while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
-                close();
-                return true;
+                quit = true;
+            } else if (e.type == SDL_KEYDOWN) {
+                switch (e.key.keysym.sym) {
+                    case SDLK_LEFT:
+                        image_surface = key_press_surfaces[LEFT];
+                        break;
+                    case SDLK_RIGHT:
+                        image_surface = key_press_surfaces[RIGHT];
+                        break;
+                    case SDLK_UP:
+                        image_surface = key_press_surfaces[UP];
+                        break;
+                    case SDLK_DOWN:
+                        image_surface = key_press_surfaces[DOWN];
+                        break;
+                    default:
+                        image_surface = key_press_surfaces[DEFAULT];
+                        break;
+                }
             }
         }
+        SDL_BlitSurface(this->image_surface, nullptr, this->window_surface, nullptr);
+        SDL_UpdateWindowSurface(window);
     }
+
+    close();
+    return true;
+
+
 }
 
 bool Game::init() {
@@ -60,13 +73,12 @@ bool Game::init() {
     return true;
 }
 
-bool Game::loadMedia() {
-    image_surface = SDL_LoadBMP("../../lazyfoo/02_getting_an_image_on_the_screen/hello_world.bmp");
-    if (image_surface == nullptr) {
-        std::cout << "Unable to load image! SDL_Error: " << SDL_GetError() << "\n";
-        return false;
-    }
-    return true;
+void Game::loadMedia() {
+    key_press_surfaces[DEFAULT] = load_surface("../../lazyfoo/04_key_presses/press.bmp");
+    key_press_surfaces[UP] = load_surface("../../lazyfoo/04_key_presses/up.bmp");
+    key_press_surfaces[DOWN] = load_surface("../../lazyfoo/04_key_presses/down.bmp");
+    key_press_surfaces[LEFT] = load_surface("../../lazyfoo/04_key_presses/left.bmp");
+    key_press_surfaces[RIGHT] = load_surface("../../lazyfoo/04_key_presses/right.bmp");
 }
 
 void Game::close() {
@@ -79,4 +91,11 @@ void Game::close() {
         this->window = nullptr;
     }
     SDL_Quit();
+}
+
+SDL_Surface* Game::load_surface(const std::string& path) {
+    SDL_Surface* surface = SDL_LoadBMP(path.c_str());
+    if (surface == nullptr)
+        std::cout << "Unable to load image: " << path << " : " << SDL_GetError() << "\n";
+    return surface;
 }

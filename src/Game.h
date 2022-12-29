@@ -1,11 +1,8 @@
-//
-// Created by Aaron on 12/18/2022.
-//
-
 #ifndef GALAGA_GAME_H
 #define GALAGA_GAME_H
 
 #include <SDL.h>
+#include <string>
 
 class Game {
 public:
@@ -15,14 +12,23 @@ private:
     const int SCREEN_WIDTH = 640;
     const int SCREEN_HEIGHT = 480;
 
-    SDL_Window *window = nullptr;
-    SDL_Surface *window_surface = nullptr;
-    SDL_Surface *image_surface = nullptr;
+    enum KeyPressSurfaces {
+        DEFAULT,
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT,
+        TOTAL
+    };
+
+    SDL_Window* window;
+    SDL_Surface* window_surface;
+    SDL_Surface* image_surface;
+    SDL_Surface* key_press_surfaces[KeyPressSurfaces::TOTAL]{};
 
     bool init();
-
-    bool loadMedia();
-
+    void loadMedia();
+    SDL_Surface* load_surface(const std::string& path);
     void close();
 
 };
