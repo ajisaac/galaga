@@ -24,11 +24,13 @@ private:
 
     SDL_Window* window;
     SDL_Surface* window_surface;
-    SDL_Surface* image_surface;
     SDL_Surface* key_press_surfaces[KeyPressSurfaces::TOTAL]{};
+    SDL_Texture* texture;
+    SDL_Renderer* renderer;
 
     bool init();
     void loadMedia();
+    SDL_Texture* load_texture(const std::string& path);
     SDL_Surface* load_surface(const std::string& path);
     void close();
 

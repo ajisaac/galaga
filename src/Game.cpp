@@ -8,7 +8,6 @@ bool Game::run() {
     }
 
     loadMedia();
-    image_surface = key_press_surfaces[DEFAULT];
 
     SDL_Event e;
     bool quit{false};
@@ -18,31 +17,15 @@ bool Game::run() {
                 quit = true;
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
-                    case SDLK_LEFT:
-                        image_surface = key_press_surfaces[LEFT];
-                        break;
-                    case SDLK_RIGHT:
-                        image_surface = key_press_surfaces[RIGHT];
-                        break;
-                    case SDLK_UP:
-                        image_surface = key_press_surfaces[UP];
-                        break;
-                    case SDLK_DOWN:
-                        image_surface = key_press_surfaces[DOWN];
-                        break;
                     default:
-                        image_surface = key_press_surfaces[DEFAULT];
                         break;
                 }
             }
         }
-        SDL_Rect stretched_rect;
-        stretched_rect.x = 0;
-        stretched_rect.y = 0;
-        stretched_rect.w = SCREEN_WIDTH;
-        stretched_rect.h = SCREEN_HEIGHT;
-        SDL_BlitSurface(this->image_surface, nullptr, this->window_surface, &stretched_rect);
-        SDL_UpdateWindowSurface(window);
+
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        SDL_RenderPresent(renderer);
     }
 
     close();
@@ -54,7 +37,6 @@ bool Game::run() {
 bool Game::init() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "SDL couldn't initialize! SDL_Error: " << SDL_GetError() << "\n";
-        SDL_Quit();
         return false;
     }
 
@@ -62,51 +44,70 @@ bool Game::init() {
                               SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == nullptr) {
         std::cout << "Window couldn't be created! SDL_Error: " << SDL_GetError() << "\n";
-        SDL_DestroyWindow(window);
-        SDL_Quit();
         return false;
     }
-
 
     int img_init = IMG_INIT_PNG;
     int init = IMG_Init(img_init) & img_init;
     if (!init) {
         std::cout << "Unable to init IMG_Init! SDL_Error: " << IMG_GetError() << "\n";
-        SDL_DestroyWindow(window);
-        SDL_Quit();
         return false;
     }
-
 
     window_surface = SDL_GetWindowSurface(window);
     if (window_surface == nullptr) {
         std::cout << "Unable to obtain window surface! SDL_Error: " << SDL_GetError() << "\n";
-        SDL_DestroyWindow(window);
-        SDL_Quit();
         return false;
     }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == nullptr) {
+        std::cout << "Unable to create renderer! SDL_Error: " << SDL_GetError() << "\n";
+        return false;
+    }
+
+    SDL_SetRenderDrawColor(renderer, 255, 45, 45, 1);
 
     return true;
 }
 
 void Game::loadMedia() {
-    key_press_surfaces[DEFAULT] = load_surface("../../lazyfoo/06_extension_libraries_and_loading_other_image_formats/loaded.png");
-    key_press_surfaces[UP] = load_surface("../../lazyfoo/04_key_presses/up.bmp");
-    key_press_surfaces[DOWN] = load_surface("../../lazyfoo/04_key_presses/down.bmp");
-    key_press_surfaces[LEFT] = load_surface("../../lazyfoo/04_key_presses/left.bmp");
-    key_press_surfaces[RIGHT] = load_surface("../../lazyfoo/04_key_presses/right.bmp");
+
+    texture = load_texture("../../lazyfoo/07_texture_loading_and_rendering/texture.png");
+    if (texture == nullptr) {
+        std::cout << "Unable to load texture! SDL_Error: " << SDL_GetError() << "\n";
+    }
 }
 
 void Game::close() {
-    SDL_FreeSurface(this->image_surface);
-    this->image_surface = nullptr;
-    SDL_FreeSurface(this->window_surface);
-    this->window_surface = nullptr;
-    if (this->window != nullptr) {
-        SDL_DestroyWindow(this->window);
-        this->window = nullptr;
-    }
+
+    SDL_DestroyTexture(texture);
+    texture = nullptr;
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+
+    SDL_FreeSurface(window_surface);
+    window_surface = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
+
     SDL_Quit();
+}
+
+SDL_Texture* Game::load_texture(const std::string& path) {
+    SDL_Texture* new_texture;
+    SDL_Surface* surface = load_surface(path);
+    if (surface == nullptr) {
+        std::cout << "Unable to load image: " << path << " : " << IMG_GetError() << "\n";
+        return nullptr;
+    }
+    new_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (new_texture == nullptr) {
+        std::cout << "Unable to create texture from surface: " << path << " : " << SDL_GetError() << "\n";
+        return nullptr;
+    }
+    SDL_FreeSurface(surface);
+    return new_texture;
 }
 
 SDL_Surface* Game::load_surface(const std::string& path) {
@@ -115,7 +116,7 @@ SDL_Surface* Game::load_surface(const std::string& path) {
 
     SDL_Surface* surface = IMG_Load(path.c_str());
     if (surface == nullptr) {
-        std::cout << "Unable to load image: " << path << " : " << SDL_GetError() << "\n";
+        std::cout << "Unable to load image: " << path << " : " << IMG_GetError() << "\n";
         return nullptr;
     }
 
