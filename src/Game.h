@@ -13,25 +13,13 @@ private:
     const int SCREEN_WIDTH = 640;
     const int SCREEN_HEIGHT = 480;
 
-    enum KeyPressSurfaces {
-        DEFAULT,
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        TOTAL
-    };
-
-    SDL_Window* window;
-    SDL_Surface* window_surface;
-    SDL_Surface* key_press_surfaces[KeyPressSurfaces::TOTAL]{};
-    SDL_Texture* texture;
-    SDL_Renderer* renderer;
+    SDL_Window* window = nullptr;
+    SDL_Texture* texture = nullptr;
+    SDL_Renderer* renderer = nullptr;
 
     bool init();
-    void loadMedia();
+    void load_media();
     SDL_Texture* load_texture(const std::string& path);
-    SDL_Surface* load_surface(const std::string& path);
     void close();
 
 };

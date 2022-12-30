@@ -7,7 +7,7 @@ bool Game::run() {
         return false;
     }
 
-    loadMedia();
+    load_media();
 
     SDL_Event e;
     bool quit{false};
@@ -54,12 +54,6 @@ bool Game::init() {
         return false;
     }
 
-    window_surface = SDL_GetWindowSurface(window);
-    if (window_surface == nullptr) {
-        std::cout << "Unable to obtain window surface! SDL_Error: " << SDL_GetError() << "\n";
-        return false;
-    }
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr) {
         std::cout << "Unable to create renderer! SDL_Error: " << SDL_GetError() << "\n";
@@ -71,8 +65,7 @@ bool Game::init() {
     return true;
 }
 
-void Game::loadMedia() {
-
+void Game::load_media() {
     texture = load_texture("../../lazyfoo/07_texture_loading_and_rendering/texture.png");
     if (texture == nullptr) {
         std::cout << "Unable to load texture! SDL_Error: " << SDL_GetError() << "\n";
@@ -85,9 +78,6 @@ void Game::close() {
     texture = nullptr;
     SDL_DestroyRenderer(renderer);
     renderer = nullptr;
-
-    SDL_FreeSurface(window_surface);
-    window_surface = nullptr;
     SDL_DestroyWindow(window);
     window = nullptr;
 
@@ -96,7 +86,7 @@ void Game::close() {
 
 SDL_Texture* Game::load_texture(const std::string& path) {
     SDL_Texture* new_texture;
-    SDL_Surface* surface = load_surface(path);
+    SDL_Surface* surface = IMG_Load(path.c_str());
     if (surface == nullptr) {
         std::cout << "Unable to load image: " << path << " : " << IMG_GetError() << "\n";
         return nullptr;
@@ -108,25 +98,4 @@ SDL_Texture* Game::load_texture(const std::string& path) {
     }
     SDL_FreeSurface(surface);
     return new_texture;
-}
-
-SDL_Surface* Game::load_surface(const std::string& path) {
-
-    SDL_Surface* optimized_surface;
-
-    SDL_Surface* surface = IMG_Load(path.c_str());
-    if (surface == nullptr) {
-        std::cout << "Unable to load image: " << path << " : " << IMG_GetError() << "\n";
-        return nullptr;
-    }
-
-    optimized_surface = SDL_ConvertSurface(surface, window_surface->format, 0);
-    if (optimized_surface == nullptr) {
-        std::cout << "Unable to optimize image: " << path << " : " << SDL_GetError() << "\n";
-        SDL_FreeSurface(surface);
-        return nullptr;
-    }
-
-    SDL_FreeSurface(surface); // no longer need this
-    return optimized_surface;
 }
