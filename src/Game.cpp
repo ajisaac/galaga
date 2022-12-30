@@ -17,6 +17,8 @@ bool Game::run() {
                 quit = true;
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
+                    case SDLK_q:
+                        quit = true;
                     default:
                         break;
                 }
@@ -65,6 +67,17 @@ bool Game::init() {
     return true;
 }
 
+
+void Game::close() {
+    SDL_DestroyTexture(texture);
+    texture = nullptr;
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
+    SDL_Quit();
+}
+
 void Game::load_media() {
     texture = load_texture("../../lazyfoo/07_texture_loading_and_rendering/texture.png");
     if (texture == nullptr) {
@@ -72,30 +85,11 @@ void Game::load_media() {
     }
 }
 
-void Game::close() {
-
-    SDL_DestroyTexture(texture);
-    texture = nullptr;
-    SDL_DestroyRenderer(renderer);
-    renderer = nullptr;
-    SDL_DestroyWindow(window);
-    window = nullptr;
-
-    SDL_Quit();
-}
-
 SDL_Texture* Game::load_texture(const std::string& path) {
-    SDL_Texture* new_texture;
-    SDL_Surface* surface = IMG_Load(path.c_str());
-    if (surface == nullptr) {
-        std::cout << "Unable to load image: " << path << " : " << IMG_GetError() << "\n";
-        return nullptr;
-    }
-    new_texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture* new_texture = IMG_LoadTexture(renderer, path.c_str());
     if (new_texture == nullptr) {
-        std::cout << "Unable to create texture from surface: " << path << " : " << SDL_GetError() << "\n";
+        std::cout << "Unable to create texture from surface: " << path << " : " << IMG_GetError() << "\n";
         return nullptr;
     }
-    SDL_FreeSurface(surface);
     return new_texture;
 }
