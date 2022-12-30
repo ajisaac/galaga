@@ -67,6 +67,17 @@ bool Game::init() {
         return false;
     }
 
+
+    int img_init = IMG_INIT_PNG;
+    int init = IMG_Init(img_init) & img_init;
+    if (!init) {
+        std::cout << "Unable to init IMG_Init! SDL_Error: " << IMG_GetError() << "\n";
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return false;
+    }
+
+
     window_surface = SDL_GetWindowSurface(window);
     if (window_surface == nullptr) {
         std::cout << "Unable to obtain window surface! SDL_Error: " << SDL_GetError() << "\n";
@@ -79,7 +90,7 @@ bool Game::init() {
 }
 
 void Game::loadMedia() {
-    key_press_surfaces[DEFAULT] = load_surface("../../lazyfoo/04_key_presses/press.bmp");
+    key_press_surfaces[DEFAULT] = load_surface("../../lazyfoo/06_extension_libraries_and_loading_other_image_formats/loaded.png");
     key_press_surfaces[UP] = load_surface("../../lazyfoo/04_key_presses/up.bmp");
     key_press_surfaces[DOWN] = load_surface("../../lazyfoo/04_key_presses/down.bmp");
     key_press_surfaces[LEFT] = load_surface("../../lazyfoo/04_key_presses/left.bmp");
@@ -100,9 +111,9 @@ void Game::close() {
 
 SDL_Surface* Game::load_surface(const std::string& path) {
 
-    SDL_Surface* optimized_surface = nullptr;
+    SDL_Surface* optimized_surface;
 
-    SDL_Surface* surface = SDL_LoadBMP(path.c_str());
+    SDL_Surface* surface = IMG_Load(path.c_str());
     if (surface == nullptr) {
         std::cout << "Unable to load image: " << path << " : " << SDL_GetError() << "\n";
         return nullptr;
